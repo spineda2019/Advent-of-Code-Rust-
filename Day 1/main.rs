@@ -1,23 +1,51 @@
 use std::io::{BufRead, BufReader};
 
-fn find_first_digit(line: &String) -> &String {
+fn find_first_digit(line: &String) -> char {
+    let answer: char;
     let first_digit = line.find(|c: char| c.is_digit(10));
     match first_digit {
-        Some(index) => {println!("The first digit is at index {} and is {}", index, line[index])
-        //
+        Some(index) => {
+            let digit = line.chars().nth(index);
+            match digit {
+                Some(ch) => {
+                    println!("The first digit is at index {} and is {}", index, ch);
+                    answer = ch;
+                }
+                None => {
+                    answer = '0';
+                }
+            }
+        }
+        None => {
+            println!("The string does not contain any digits");
+            answer = '0';
+        }
     }
-        None => println!("The string does not contain any digits"),
-    }
-    return line;
+    return answer;
 }
 
-fn find_last_digit(line: &String) -> &String {
+fn find_last_digit(line: &String) -> char {
+    let answer: char;
     let first_digit = line.rfind(|c: char| c.is_digit(10));
     match first_digit {
-        Some(index) => println!("The last digit is at index {} an is {}", index, line[index]),
-        None => println!("The string does not contain any digits"),
+        Some(index) => {
+            let digit = line.chars().nth(index);
+            match digit {
+                Some(ch) => {
+                    println!("The last digit is at index {} and is {}", index, ch);
+                    answer = ch;
+                }
+                None => {
+                    answer = '0';
+                }
+            }
+        }
+        None => {
+            println!("The string does not contain any digits");
+            answer = '0';
+        }
     }
-    return line;
+    return answer;
 }
 
 fn main() -> Result<(), std::io::Error> {
@@ -41,9 +69,20 @@ fn main() -> Result<(), std::io::Error> {
         for line in file_reader.lines() {
             match line {
                 Ok(line) => {
-                    find_first_digit(&line);
-                    find_last_digit(&line);
-                    result += 1;
+                    
+                    let mut number: String = String::from("");
+                    number.push(find_first_digit(&line));
+                    number.push(find_last_digit(&line));
+                    let final_number: Result<i64, std::num::ParseIntError> = number.parse();
+                    match final_number {
+                        Ok(final_number) => {
+                            println!("{}", final_number);
+                            result += final_number;
+                        }
+                        Err(_e) => {
+                            continue;
+                        }
+                    }
                 }
                 Err(_e) => {
                     continue;

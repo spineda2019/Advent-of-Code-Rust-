@@ -3,13 +3,42 @@ use std::fs::File;
 use std::io::{BufRead, BufReader};
 
 fn find_numbers(line: &str) -> Vec<(usize, usize, String)> {
-    let ans: Vec<(usize, usize, String)> = Vec::new();
-    for each_character in line.chars() {
+    let mut nums_with_positions: Vec<(usize, usize, String)> = Vec::new();
+
+    let mut ready_to_push: bool = false;
+    let mut digit_already_found: bool = false;
+
+    let mut current_number: String = String::from("");
+    let mut current_left: usize = 0;
+
+    for (index, each_character) in line.chars().enumerate() {
         if each_character.is_ascii_digit() {
-            println!("{}", each_character);
+            ready_to_push = true;
+            current_number.push(each_character);
+
+            if digit_already_found {
+                // TODO
+            } else {
+                digit_already_found = true;
+                current_left = index;
+                // TODO
+            }
+        } else if ready_to_push {
+            let left: usize = current_left;
+            let right: usize = index - 1;
+            let number: String = current_number;
+
+            nums_with_positions.push((left, right, number));
+
+            current_left = 0;
+            current_number = String::from("");
+
+            digit_already_found = false;
+            ready_to_push = false;
         }
     }
-    ans
+
+    nums_with_positions
 }
 
 fn find_engine_sum(lines: &Vec<String>) -> usize {
@@ -18,7 +47,7 @@ fn find_engine_sum(lines: &Vec<String>) -> usize {
     // TODO: Check previous and later line for symbols (left + right too)
     // TODO: add to sum if valid
     for each_line in lines {
-        find_numbers(each_line);
+        println!("{:?}", find_numbers(each_line));
     }
     sum
 }

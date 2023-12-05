@@ -46,8 +46,19 @@ fn find_engine_sum(lines: &Vec<String>) -> usize {
     // TODO: Consume a line (dif func?) get indices of start and end of number
     // TODO: Check previous and later line for symbols (left + right too)
     // TODO: add to sum if valid
-    for each_line in lines {
-        println!("{:?}", find_numbers(each_line));
+    for (index, each_line) in lines.iter().enumerate() {
+        let line_info: Vec<(usize, usize, String)> = find_numbers(each_line);
+        match &index {
+            0 => {
+                // TODO: don't look up
+            }
+            size if size == &line_info.len() => {
+                // TODO: don't look down
+            }
+            middle_values => {
+                // TODO
+            }
+        }
     }
     sum
 }

@@ -7,8 +7,12 @@ fn calculate_number_of_cards(matches: &[u32]) -> u32 {
 
     for (index, number) in matches.iter().enumerate() {
         for _repitions in 0..card_array[index] {
-            for i in index + 1..=index + *number as usize {
-                card_array[i] += 1;
+            for card in card_array
+                .iter_mut()
+                .take(index + *number as usize + 1)
+                .skip(index + 1)
+            {
+                *card += 1;
             }
         }
     }

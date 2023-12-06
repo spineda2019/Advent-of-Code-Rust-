@@ -3,3 +3,6 @@
 *.toml
 target
 *.lock
+dump.txt
+dump2.txt
+foo.txt

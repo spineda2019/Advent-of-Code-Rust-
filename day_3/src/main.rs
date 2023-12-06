@@ -16,12 +16,23 @@ fn find_numbers(line: &str) -> Vec<(usize, usize, String)> {
             ready_to_push = true;
             current_number.push(each_character);
 
-            if digit_already_found {
-                // TODO
-            } else {
+            if !digit_already_found {
                 digit_already_found = true;
                 current_left = index;
-                // TODO
+            }
+
+            if index == line.len() - 1 {
+                let left: usize = current_left;
+                let right: usize = index - 1;
+                let number: String = current_number;
+
+                nums_with_positions.push((left, right, number));
+
+                current_left = 0;
+                current_number = String::from("");
+
+                digit_already_found = false;
+                ready_to_push = false;
             }
         } else if ready_to_push {
             let left: usize = current_left;
@@ -41,22 +52,341 @@ fn find_numbers(line: &str) -> Vec<(usize, usize, String)> {
     nums_with_positions
 }
 
-fn find_engine_sum(lines: &Vec<String>) -> usize {
-    let sum: usize = 4;
-    // TODO: Consume a line (dif func?) get indices of start and end of number
+fn find_engine_sum(lines: &[String]) -> usize {
+    let mut sum: usize = 0;
     // TODO: Check previous and later line for symbols (left + right too)
     // TODO: add to sum if valid
     for (index, each_line) in lines.iter().enumerate() {
         let line_info: Vec<(usize, usize, String)> = find_numbers(each_line);
-        match &index {
-            0 => {
-                // TODO: don't look up
-            }
-            size if size == &line_info.len() => {
-                // TODO: don't look down
-            }
-            middle_values => {
-                // TODO
+        let line_length: usize = line_info.len();
+
+        for each_tuple in line_info {
+            println!(
+                "Num: {:?}, Current Sum Before processing: {sum}",
+                each_tuple
+            );
+            match index {
+                0 => {
+                    let prior_sum: usize = sum;
+
+                    for below_index in each_tuple.0 - 1..=each_tuple.1 + 1 {
+                        // TODO: don't look up
+                        if index != lines.len() - 1
+                            && lines[index + 1].chars().nth(below_index).unwrap_or('.') != '.'
+                        {
+                            println!(
+                                " Below Chars: {:?}",
+                                lines[index + 1].chars().nth(below_index).unwrap()
+                            );
+                            sum += match each_tuple.2.parse() {
+                                Ok(x) => x,
+                                Err(_e) => 0,
+                            };
+                        }
+                    }
+
+                    if prior_sum != sum {
+                        continue;
+                    }
+
+                    if (each_tuple.0 != 0
+                        && each_line.chars().nth(each_tuple.0 - 1).unwrap_or('.') != '.')
+                        || (each_tuple.1 != line_length
+                            && each_line.chars().nth(each_tuple.1 + 1).unwrap_or('.') != '.')
+                    {
+                        println!(
+                            "Left Char: {}",
+                            each_line.chars().nth(each_tuple.0 - 1).unwrap()
+                        );
+                        println!(
+                            "Right Char: {}",
+                            each_line.chars().nth(each_tuple.1 + 1).unwrap()
+                        );
+
+                        sum += match each_tuple.2.parse() {
+                            Ok(x) => x,
+                            Err(_e) => 0,
+                        };
+                    }
+                }
+                size if size == lines.len() - 1 => {
+                    let prior_sum: usize = sum;
+
+                    for above_index in each_tuple.0 - 1..=each_tuple.1 + 1 {
+                        if index != 0
+                            && lines[index - 1].chars().nth(above_index).unwrap_or('.') != '.'
+                        {
+                            println!(
+                                " Above Chars: {:?}",
+                                lines[index - 1].chars().nth(above_index).unwrap()
+                            );
+                            sum += match each_tuple.2.parse() {
+                                Ok(x) => x,
+                                Err(_e) => 0,
+                            };
+                        }
+                    }
+
+                    if prior_sum != sum {
+                        continue;
+                    }
+
+                    if (each_tuple.0 != 0
+                        && each_line.chars().nth(each_tuple.0 - 1).unwrap_or('.') != '.')
+                        || (each_tuple.1 != line_length
+                            && each_line.chars().nth(each_tuple.1 + 1).unwrap_or('.') != '.')
+                    {
+                        println!(
+                            "Left Char: {}",
+                            each_line.chars().nth(each_tuple.0 - 1).unwrap()
+                        );
+                        println!(
+                            "Right Char: {}",
+                            each_line.chars().nth(each_tuple.1 + 1).unwrap()
+                        );
+                        sum += match each_tuple.2.parse() {
+                            Ok(x) => x,
+                            Err(_e) => 0,
+                        };
+                    }
+                }
+                _middle_values => {
+                    let prior_sum: usize = sum;
+
+                    for above_and_below in each_tuple.0..=each_tuple.1 {
+                        if index != lines.len() - 1
+                            && lines[index + 1].chars().nth(above_and_below).unwrap_or('.') != '.'
+                        {
+                            println!(
+                                " Below Chars: {:?}",
+                                lines[index + 1].chars().nth(above_and_below).unwrap()
+                            );
+                            sum += match each_tuple.2.parse() {
+                                Ok(x) => x,
+                                Err(_e) => 0,
+                            };
+                        }
+
+                        if prior_sum != sum {
+                            break;
+                        }
+
+                        if index != 0
+                            && lines[index - 1].chars().nth(above_and_below).unwrap_or('.') != '.'
+                        {
+                            println!(
+                                " Above Chars: {:?}",
+                                lines[index - 1].chars().nth(above_and_below).unwrap()
+                            );
+                            sum += match each_tuple.2.parse() {
+                                Ok(x) => x,
+                                Err(_e) => 0,
+                            };
+                        }
+                    }
+
+                    if prior_sum != sum {
+                        continue;
+                    }
+
+                    // diags
+
+                    if each_tuple.0 == 0 {
+                        //just look right diagonal
+                        if lines[index + 1]
+                            .chars()
+                            .nth(each_tuple.1 + each_tuple.2.len() - 1)
+                            .unwrap()
+                            != '.'
+                        {
+                            println!(
+                                " Below Chars: {:?}",
+                                lines[index + 1]
+                                    .chars()
+                                    .nth(each_tuple.1 + each_tuple.2.len() - 1)
+                                    .unwrap()
+                            );
+                            sum += match each_tuple.2.parse() {
+                                Ok(x) => x,
+                                Err(_e) => 0,
+                            };
+                        }
+
+                        if prior_sum != sum {
+                            continue;
+                        }
+
+                        if lines[index - 1]
+                            .chars()
+                            .nth(each_tuple.1 + each_tuple.2.len() - 1)
+                            .unwrap()
+                            != '.'
+                        {
+                            println!(
+                                " Above Chars: {:?}",
+                                lines[index - 1]
+                                    .chars()
+                                    .nth(each_tuple.1 + each_tuple.2.len() - 1)
+                                    .unwrap()
+                            );
+                            sum += match each_tuple.2.parse() {
+                                Ok(x) => x,
+                                Err(_e) => 0,
+                            };
+                        }
+
+                        if prior_sum != sum {
+                            continue;
+                        }
+                    }
+                    if each_tuple.1 + each_tuple.2.len() - 1 == each_line.len() {
+                        // just look left diagonal
+                        if lines[index + 1]
+                            .chars()
+                            .nth(each_tuple.0 - 1)
+                            .unwrap_or('.')
+                            != '.'
+                        {
+                            println!(
+                                " Below Chars: {:?}",
+                                lines[index + 1].chars().nth(each_tuple.0 - 1).unwrap()
+                            );
+                            sum += match each_tuple.2.parse() {
+                                Ok(x) => x,
+                                Err(_e) => 0,
+                            };
+                        }
+
+                        if prior_sum != sum {
+                            continue;
+                        }
+                        if lines[index - 1]
+                            .chars()
+                            .nth(each_tuple.0 - 1)
+                            .unwrap_or('.')
+                            != '.'
+                        {
+                            println!(
+                                " Above Chars: {:?}",
+                                lines[index - 1].chars().nth(each_tuple.0 - 1).unwrap()
+                            );
+                            sum += match each_tuple.2.parse() {
+                                Ok(x) => x,
+                                Err(_e) => 0,
+                            };
+                        }
+
+                        if prior_sum != sum {
+                            continue;
+                        }
+                    } else {
+                        // look at all diagonals
+
+                        if lines[index + 1]
+                            .chars()
+                            .nth(each_tuple.0 - 1)
+                            .unwrap_or('.')
+                            != '.'
+                        {
+                            println!(
+                                " Below Chars: {:?}",
+                                lines[index + 1].chars().nth(each_tuple.0 - 1).unwrap()
+                            );
+                            sum += match each_tuple.2.parse() {
+                                Ok(x) => x,
+                                Err(_e) => 0,
+                            };
+                        }
+
+                        if prior_sum != sum {
+                            continue;
+                        }
+
+                        if lines[index + 1]
+                            .chars()
+                            .nth(each_tuple.1 + each_tuple.2.len() - 1)
+                            .unwrap()
+                            != '.'
+                        {
+                            println!(
+                                " Below Chars: {:?}",
+                                lines[index + 1]
+                                    .chars()
+                                    .nth(each_tuple.1 + each_tuple.2.len() - 1)
+                                    .unwrap()
+                            );
+                            sum += match each_tuple.2.parse() {
+                                Ok(x) => x,
+                                Err(_e) => 0,
+                            };
+                        }
+
+                        if prior_sum != sum {
+                            continue;
+                        }
+
+                        // ABOVE
+                        if lines[index - 1]
+                            .chars()
+                            .nth(each_tuple.0 - 1)
+                            .unwrap_or('.')
+                            != '.'
+                        {
+                            println!(
+                                " Above Chars: {:?}",
+                                lines[index - 1].chars().nth(each_tuple.0 - 1).unwrap()
+                            );
+                            sum += match each_tuple.2.parse() {
+                                Ok(x) => x,
+                                Err(_e) => 0,
+                            };
+                        }
+
+                        if prior_sum != sum {
+                            continue;
+                        }
+
+                        if lines[index - 1]
+                            .chars()
+                            .nth(each_tuple.1 + each_tuple.2.len() - 1)
+                            .unwrap()
+                            != '.'
+                        {
+                            println!(
+                                " Above Chars: {:?}",
+                                lines[index - 1]
+                                    .chars()
+                                    .nth(each_tuple.1 + each_tuple.2.len() - 1)
+                                    .unwrap()
+                            );
+                            sum += match each_tuple.2.parse() {
+                                Ok(x) => x,
+                                Err(_e) => 0,
+                            };
+                        }
+
+                        if prior_sum != sum {
+                            continue;
+                        }
+                    }
+
+                    if (each_tuple.0 != 0
+                        && each_line.chars().nth(each_tuple.0 - 1).unwrap_or('.') != '.')
+                        || (each_tuple.1 != line_length
+                            && each_line
+                                .chars()
+                                .nth(each_tuple.1 + each_tuple.2.len() - 1)
+                                .unwrap_or('.')
+                                != '.')
+                    {
+                        println!("Left Char: {:?}", each_line.chars().nth(each_tuple.0 - 1));
+                        println!("Right Char: {:?}", each_line.chars().nth(each_tuple.1 + 1));
+                        sum += match each_tuple.2.parse() {
+                            Ok(x) => x,
+                            Err(_e) => 0,
+                        };
+                    }
+                }
             }
         }
     }

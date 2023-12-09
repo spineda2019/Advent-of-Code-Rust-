@@ -122,5 +122,31 @@ fn main() -> Result<(), std::io::Error> {
 
     println!("Wins: {}", wins.iter().product::<usize>());
 
+    let big_time: String = times.concat();
+    let big_distance: String = distances.concat();
+
+    let big_time = match big_time.parse::<usize>() {
+        Ok(x) => x,
+        Err(_) => {
+            return Err(std::io::Error::new(
+                std::io::ErrorKind::Interrupted,
+                "Number not parsed correctly",
+            ))
+        }
+    };
+
+    let big_distance = match big_distance.parse::<usize>() {
+        Ok(x) => x,
+        Err(_) => {
+            return Err(std::io::Error::new(
+                std::io::ErrorKind::Interrupted,
+                "Number not parsed correctly",
+            ))
+        }
+    };
+
+    let big_race = Race::new(big_time, big_distance);
+    println!("One Win: {}", big_race.possible_wins());
+
     Ok(())
 }

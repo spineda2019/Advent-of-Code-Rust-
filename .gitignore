@@ -7,3 +7,5 @@ dump.txt
 dump2.txt
 foo.txt
 playground
+*.xml
+*.iml
